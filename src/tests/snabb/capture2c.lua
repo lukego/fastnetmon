@@ -78,18 +78,8 @@ for pciaddr in pciaddresses:gmatch("[0-9:.]+") do
    local rxring = nic.rxdesc._ptr
    local ring_size = npackets
    local run = function ()
-      local npackets = bit.band(npackets + nic.r.RDH() - nic.r.RDT())
-      if npackets > 0 then
-         -- Performance note: it is helpful that we pass 'npackets' to
-         -- tell the C callback how many packets to process before it
-         -- stops. If the callback does not have this limit then it can
-         -- slow down the NIC by processing packets too quickly. (I think
-         -- the issue is write/write conflicts when the CPU and the NIC
-         -- are both updating receive descriptors that are too close
-         -- together i.e. on the same cache line. -lukego)
-         index = so.process_packets(packets, rxring, ring_size, index, npackets)
-         nic.r.RDT(index==0 and npackets or index-1)
-      end
+      index = so.process_packets(packets, rxring, ring_size, index, 2000)
+      nic.r.RDT(index==0 and npackets or index-1)
    end
    table.insert(run_functions, run)
 end
