@@ -898,6 +898,7 @@ int process_packets(char **packets,       // array of packet data buffers
                     int index,
                     int max) {          // current index into ring
   while (max-- > 0 && (rxring[index].status & 1)) { // packet ready?
+    __builtin_prefetch(packets[index+1]);
     process_packet(packets[index], rxring[index].length); // process packet
     rxring[index].status = 0;                     // reset descriptor
     index = (index + 1) & (ring_size-1);          // move on to next ring item
