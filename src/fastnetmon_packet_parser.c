@@ -857,6 +857,8 @@ void run_speed_printer() {
     pthread_detach(thread);
 }
 
+int accumulator;
+
 inline void process_packet(char *data, int length) {
     // Put packet to the cache
     __builtin_prefetch(data);
@@ -866,7 +868,7 @@ inline void process_packet(char *data, int length) {
     packet_header.len = length;
     packet_header.caplen = length;
 
-    fastnetmon_parse_pkt((u_char*)data, &packet_header, 3, 0, 0);
+    accumulator = fastnetmon_parse_pkt((u_char*)data, &packet_header, 3, 0, 0);
 
     __sync_fetch_and_add(&received_packets, 1);
     //printf("Got packet with %d bytes.\n", length);
